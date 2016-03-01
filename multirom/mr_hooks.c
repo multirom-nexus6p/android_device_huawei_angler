@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include <private/android_filesystem_config.h>
 
@@ -22,20 +23,42 @@
 #include <multirom.h>
 
 #define GATEKEEPER_PATH "/system/lib64/hw/gatekeeper.angler.so"
-#define GATEKEEPER_FAKE_SOURCE "/system/build.prop"
+#define GATEKEEPER_DATA_DIR "/data/misc/gatekeeper"
+#define GATEKEEPER_COLDBOOT_PATH "/data/misc/gatekeeper/.coldboot"
 
 #if MR_DEVICE_HOOKS >= 1
 
 int mrom_hook_after_android_mounts(const char *busybox_path, const char *base_path, int type)
 {
+    // wiping the data of a primary or secondary ROM causes the ROM to delete
+    // all lockscreen accounts from the gatekeeper on next boot, preventing
+    // the user from logging into the other ROMs.
+    // To work around this, create the .coldboot file to prevent the wipe.
+    if (access(GATEKEEPER_COLDBOOT_PATH, F_OK) == -1)
+    {
+        // the permission should be fixed during the first boot
+        int err = mkdir_recursive(GATEKEEPER_DATA_DIR, 0700);
+        if (err)
+            ERROR("failed to mkdir " GATEKEEPER_DATA_DIR ": %s", strerror(err));
+        else
+        {
+            int fd = open(GATEKEEPER_COLDBOOT_PATH, O_WRONLY|O_TRUNC|O_CREAT,
+                S_IRUSR|S_IWUSR);
+            if (fd < 0)
+                ERROR("failed to open " GATEKEEPER_COLDBOOT_PATH ": %s",
+                    strerror(errno));
+            else
+            {
+                fchown(fd, AID_SYSTEM, AID_SYSTEM);
+                close(fd);
+            }
+        }
+    }
     if (type == ROM_DEFAULT)
         return 0;
-    // Disable the hardware gatekeeper module to prevent the secondary ROM from corrupting primary ROM's password
-    if (access(GATEKEEPER_PATH, R_OK) != 0)
-    {
-        // make the system try to load build.prop instead - which will give library corrupt error, which is what we need
-        link(GATEKEEPER_FAKE_SOURCE, GATEKEEPER_PATH);
-    }
+    // Delete the old gatekeeper workaround
+    // remove after people stop using Beta 1-4
+    remove(GATEKEEPER_PATH);
     return 0;
 }
 #endif /* MR_DEVICE_HOOKS >= 1 */
