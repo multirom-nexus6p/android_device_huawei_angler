@@ -7,7 +7,8 @@ vendor_filelist="/vendor/lib64/libQSEEComAPI.so \
 /vendor/lib64/librpmb.so \
 /vendor/lib64/libssd.so \
 /vendor/lib64/libdiag.so \
-/vendor/bin/qseecomd"
+/vendor/bin/qseecomd \
+/vendor/lib64/libkmcrypto.so"
 # already copied: libcryptfslollipop.so libcrypto.so libc.so libcutils.so libdl.so libhardware.so liblog.so libm.so libstdc++.so libc++.so
 system_filelist="libbacktrace.so libbase.so libnetd_client.so libunwind.so libutils.so linker64"
 rm -r multirom_enc_blobs
