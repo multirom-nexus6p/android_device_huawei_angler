@@ -163,6 +163,7 @@ TARGET_RECOVERY_IS_MULTIROM := true
 MR_INPUT_TYPE := type_b
 MR_INIT_DEVICES := device/huawei/angler/multirom/mr_init_devices.c
 MR_DPI := xhdpi
+MR_DPI_MUL := 2.0
 MR_DPI_FONT := 435
 MR_FSTAB := device/huawei/angler/recovery.fstab
 MR_USE_MROM_FSTAB := false
