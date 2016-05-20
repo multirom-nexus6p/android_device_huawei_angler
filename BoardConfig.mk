@@ -206,7 +206,7 @@ MR_QCOM_OVERLAY_CUSTOM_PIXEL_FORMAT := MDP_RGBX_8888
 include device/huawei/angler/MR_REC_VERSION.mk
 
 ifeq ($(MR_REC_VERSION),)
-MR_REC_VERSION := $(shell date -u +%Y%m%d)-07
+MR_REC_VERSION := $(shell date -u +%Y%m%d)-01
 endif
 
 BOARD_MKBOOTIMG_ARGS += --board mrom$(MR_REC_VERSION)
